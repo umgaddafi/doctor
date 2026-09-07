@@ -38,7 +38,11 @@
         ['title' => 'Birth Certificate/Attestation by the National Population Commission (NPC)', 'icon' => 'bi-file-earmark-medical', 'description' => 'Acquire official birth registration records or attestation documents from the NPC.'],
     ];
 
-    $dbServices = \App\Models\Service::where('status', 'Active')->get();
+    try {
+        $dbServices = \App\Models\Service::where('status', 'Active')->get();
+    } catch (\Throwable $e) {
+        $dbServices = collect();
+    }
 
     if (!function_exists('getServiceCategory')) {
         function getServiceCategory($name) {

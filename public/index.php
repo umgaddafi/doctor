@@ -5,12 +5,8 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
-// Polyfill mb_split if host PHP lacks native mbstring extension
-if (!function_exists('mb_split')) {
-    function mb_split($pattern, $string, $limit = -1) {
-        return preg_split('/' . $pattern . '/u', $string, $limit);
-    }
-}
+// Ensure helpers/polyfills are loaded immediately
+require_once __DIR__.'/../app/helpers.php';
 
 // Force base path correction for cPanel subfolder deployment
 if (isset($_SERVER['SCRIPT_NAME']) && strpos($_SERVER['SCRIPT_NAME'], '/public/') !== false) {
@@ -36,9 +32,15 @@ $storageDirs = [
 ];
 foreach ($storageDirs as $dir) {
     if (!is_dir($dir)) {
-        @mkdir($dir, 0775, true);
-        @chmod($dir, 0775);
+        @mkdir($dir, 0777, true);
     }
+    @chmod($dir, 0777);
+}
+
+$logFile = __DIR__.'/../storage/logs/laravel.log';
+if (!file_exists($logFile)) {
+    @touch($logFile);
+    @chmod($logFile, 0666);
 }
 
 // Register the Composer autoloader...
